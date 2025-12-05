@@ -137,7 +137,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-Your Name - [Your GitHub Profile](https://github.com/yourusername)
+Your Name - [Prolaydutt](https://github.com/Prolaydutt)
 
 ## 🙏 Acknowledgments
 
@@ -147,7 +147,7 @@ Your Name - [Your GitHub Profile](https://github.com/yourusername)
 
 ## 📞 Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/yourusername/yourrepo/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://github.com/Prolaydutt/Ml-app-streamlit/issues) on GitHub.
 
 ---
 

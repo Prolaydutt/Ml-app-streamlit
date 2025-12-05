@@ -25,13 +25,20 @@ def load_model():
     try:
         # Replace 'your_model.h5' with your actual model filename
         model = keras.models.load_model('hog_cnn_model.h5')
-        return model, None
+        
+        # Detect expected input shape from model
+        input_shape = model.input_shape
+        # input_shape is like (None, height, width, channels)
+        expected_height = input_shape[1] if input_shape[1] else 28
+        expected_width = input_shape[2] if input_shape[2] else 28
+        
+        return model, None, (expected_height, expected_width)
     except FileNotFoundError:
-        return None, "Model file not found. Please ensure 'your_model.h5' is in the same directory."
+        return None, "Model file not found. Please ensure 'your_model.h5' is in the same directory.", (28, 28)
     except Exception as e:
-        return None, f"Error loading model: {str(e)}"
+        return None, f"Error loading model: {str(e)}", (28, 28)
 
-def preprocess_image(image):
+def preprocess_image(image, target_size=(28, 28)):
     """Preprocess uploaded image for model prediction"""
     try:
         # Convert PIL image to numpy array
@@ -46,13 +53,13 @@ def preprocess_image(image):
                 image_gray = image.convert('L')
                 img_array = np.array(image_gray)
         
-        # Resize to 28x28
+        # Resize to target size
         if CV2_AVAILABLE:
-            img_resized = cv2.resize(img_array, (28, 28))
+            img_resized = cv2.resize(img_array, target_size)
         else:
             # Use PIL for resizing
             img_pil = Image.fromarray(img_array)
-            img_pil_resized = img_pil.resize((28, 28), Image.Resampling.LANCZOS)
+            img_pil_resized = img_pil.resize(target_size, Image.Resampling.LANCZOS)
             img_resized = np.array(img_pil_resized)
         
         # Invert colors if needed (MNIST has white digits on black background)
@@ -63,7 +70,7 @@ def preprocess_image(image):
         img_normalized = img_resized.astype('float32') / 255.0
         
         # Reshape for model input (batch_size, height, width, channels)
-        img_final = img_normalized.reshape(1, 28, 28, 1)
+        img_final = img_normalized.reshape(1, target_size[0], target_size[1], 1)
         
         return img_final, None
     except Exception as e:
@@ -75,14 +82,14 @@ def main():
     st.write("Upload an image of a handwritten digit (0-9) and let the model predict it!")
     
     # Load model
-    model, error = load_model()
+    model, error, input_size = load_model()
     
     if error:
         st.error(f"❌ {error}")
         st.info("💡 Make sure your model file is named 'your_model.h5' and placed in the same directory as this script.")
         return
     
-    st.success("✅ Model loaded successfully!")
+    st.success(f"✅ Model loaded successfully! (Expected input: {input_size[0]}×{input_size[1]})")
     
     # File uploader
     uploaded_file = st.file_uploader(
@@ -101,8 +108,8 @@ def main():
                 st.subheader("Uploaded Image")
                 st.image(image, use_container_width=True)
             
-            # Preprocess image
-            processed_image, preprocess_error = preprocess_image(image)
+            # Preprocess image with detected input size
+            processed_image, preprocess_error = preprocess_image(image, target_size=input_size)
             
             if preprocess_error:
                 st.error(f"❌ {preprocess_error}")
@@ -148,15 +155,15 @@ def main():
     
     # Technical info
     with st.expander("🔧 Technical Details"):
-        st.write("""
+        st.write(f"""
         **Model Configuration:**
-        - Expected input: 28×28 grayscale images
+        - Expected input: {input_size[0]}×{input_size[1]} grayscale images
         - Output: 10 classes (digits 0-9)
         - Framework: TensorFlow/Keras
         
         **Preprocessing Steps:**
         1. Convert to grayscale
-        2. Resize to 28×28 pixels
+        2. Resize to {input_size[0]}×{input_size[1]} pixels
         3. Invert colors (if needed)
         4. Normalize pixel values (0-1)
         5. Reshape for model input

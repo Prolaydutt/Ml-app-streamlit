@@ -24,7 +24,7 @@ st.set_page_config(
 def load_model():
     try:
         # Replace 'your_model.h5' with your actual model filename
-        model = keras.models.load_model('your_model.h5')
+        model = keras.models.load_model('hog_cnn_model.h5')
         return model, None
     except FileNotFoundError:
         return None, "Model file not found. Please ensure 'your_model.h5' is in the same directory."

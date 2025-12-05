@@ -1,4 +1,4 @@
-# 🎈 Blank app template
+# 🎈 Handwritten digit recognision app
 
 A simple Streamlit app template for you to modify!
 
